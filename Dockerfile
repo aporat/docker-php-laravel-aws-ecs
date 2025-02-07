@@ -66,7 +66,7 @@ COPY docker/php/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 WORKDIR /var/app
 
 # Copy application sources into the container.
-COPY --chown=app-user:app-group . /var/app
+COPY --chown=app-user:app-group laravel /var/app
 RUN chown -R app-user:app-group /var/app
 RUN chmod +w /var/app/public
 RUN chown -R app-user:app-group /var /run

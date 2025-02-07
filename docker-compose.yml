@@ -9,7 +9,7 @@ services:
             target: php_development
         working_dir: /var/app
         volumes:
-            - .:/var/app
+            - ./laravel:/var/app
         ports:
             - "80:80"
             - "443:443"

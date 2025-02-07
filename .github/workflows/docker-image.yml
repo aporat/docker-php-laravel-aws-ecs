@@ -13,6 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker-php-laravel-aws-ecs:$(date +%s)
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - uses: shivammathur/setup-php@v2
+          with:
+           php-version: '8.4'
+
+        - name: Install Laravel project
+          run: composer create-project --prefer-dist laravel/laravel laravel
+
+        - name: Setup Laravel project
+          run: cp .env laravel/.env
+
+        - name: Build the Docker image
+          run: docker build . --file Dockerfile --tag docker-php-laravel-aws-ecs:$(date +%s)
