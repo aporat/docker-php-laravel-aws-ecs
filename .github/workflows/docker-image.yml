@@ -26,5 +26,8 @@ jobs:
         - name: Setup the Laravel environment
           run: cp .env laravel/.env
 
-        - name: Build the Docker image
-          run: docker build . --file Dockerfile --tag docker-php-laravel-aws-ecs:$(date +%s)
+        - name: Build Development Image
+          run: docker build . --file Dockerfile --target=php_development --tag docker-php-laravel-aws-ecs-dev:$(date +%s)
+
+        - name: Build Production Image
+          run: docker build . --file Dockerfile --target=php_production --tag docker-php-laravel-aws-ecs-prod:$(date +%s)
