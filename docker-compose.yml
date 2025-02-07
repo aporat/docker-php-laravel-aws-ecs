@@ -1,0 +1,84 @@
+services:
+
+    ####################################################################################################
+    # PHP
+    ####################################################################################################
+    php:
+        build:
+            context: .
+            target: php_development
+        working_dir: /var/app
+        volumes:
+            - .:/var/app
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    ####################################################################################################
+    # DATABASE (MySQL)
+    ####################################################################################################
+    mysql:
+        image: mysql:8
+        ports:
+            - "3306:3306"
+        volumes:
+            - .docker_data/mysql/data:/var/lib/mysql
+            - .docker_data/logs:/var/log/mysql
+            - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+            - ./docker/mysql/sql:/docker-entrypoint-initdb.d
+        environment:
+            MYSQL_ROOT_PASSWORD: roqqov-difmuz-3dipzY
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: laravel
+            MYSQL_PASSWORD: docdiq-wAxja5-nyrger
+        healthcheck:
+            test: ["CMD-SHELL", "mysqladmin ping -h localhost -u laravel -psecret || exit 1"]
+            interval: 3s    # Check every x seconds
+            timeout: 2s     # Timeout if it takes longer than x  seconds
+            retries: 5      # Mark unhealthy after 3 consecutive failures
+
+    ####################################################################################################
+    # phpMyAdmin
+    ####################################################################################################
+    phpmyadmin:
+        image: phpmyadmin
+        ports:
+            - "8080:80"
+        links:
+            - mysql
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_ARBITRARY: 1
+        volumes:
+            - .docker_data/phpmyadmin/sessions:/sessions
+
+    ####################################################################################################
+    # Mailpit
+    ####################################################################################################
+    mail:
+        image: axllent/mailpit:latest
+        ports:
+        - "8025:8025"
+        - "1025:1025"
+
+    ####################################################################################################
+    # Redis
+    ####################################################################################################
+    redis:
+        image: redis:latest
+        command: redis-server --appendonly yes
+        volumes:
+        - .docker_data/redis/data:/data
+        ports:
+        - "6379:6379"
+        healthcheck:
+            test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+            interval: 3s    # Check every x seconds
+            timeout: 2s     # Timeout if it takes longer than x  seconds
+            retries: 5      # Mark unhealthy after 3 consecutive failures
