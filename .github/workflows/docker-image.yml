@@ -23,7 +23,7 @@ jobs:
         - name: Install Laravel project
           run: composer create-project --prefer-dist laravel/laravel laravel
 
-        - name: Setup Laravel project
+        - name: Setup the Laravel environment
           run: cp .env laravel/.env
 
         - name: Build the Docker image
