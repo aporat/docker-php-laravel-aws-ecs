@@ -1,5 +1,4 @@
 services:
-
     ####################################################################################################
     # PHP
     ####################################################################################################
@@ -27,8 +26,8 @@ services:
         ports:
             - "3306:3306"
         volumes:
-            - .docker_data/mysql/data:/var/lib/mysql
-            - .docker_data/logs:/var/log/mysql
+            - ./.docker_data/mysql/data:/var/lib/mysql
+            - ./.docker_data/logs:/var/log/mysql
             - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
             - ./docker/mysql/sql:/docker-entrypoint-initdb.d
         environment:
@@ -37,10 +36,10 @@ services:
             MYSQL_USER: laravel
             MYSQL_PASSWORD: docdiq-wAxja5-nyrger
         healthcheck:
-            test: ["CMD-SHELL", "mysqladmin ping -h localhost -u laravel -psecret || exit 1"]
+            test: ["CMD-SHELL", "mysqladmin ping -h localhost -u laravel -p$MYSQL_PASSWORD || exit 1"]
             interval: 3s    # Check every x seconds
-            timeout: 2s     # Timeout if it takes longer than x  seconds
-            retries: 5      # Mark unhealthy after 3 consecutive failures
+            timeout: 2s     # Timeout if it takes longer than x seconds
+            retries: 5      # Mark unhealthy after 5 consecutive failures
 
     ####################################################################################################
     # phpMyAdmin
@@ -49,14 +48,14 @@ services:
         image: phpmyadmin
         ports:
             - "8080:80"
-        links:
+        depends_on:
             - mysql
         environment:
             PMA_HOST: mysql
             PMA_PORT: 3306
             PMA_ARBITRARY: 1
         volumes:
-            - .docker_data/phpmyadmin/sessions:/sessions
+            - ./.docker_data/phpmyadmin/sessions:/sessions
 
     ####################################################################################################
     # Mailpit
@@ -64,8 +63,8 @@ services:
     mail:
         image: axllent/mailpit:latest
         ports:
-        - "8025:8025"
-        - "1025:1025"
+            - "8025:8025"
+            - "1025:1025"
 
     ####################################################################################################
     # Redis
@@ -74,11 +73,16 @@ services:
         image: redis:latest
         command: redis-server --appendonly yes
         volumes:
-        - .docker_data/redis/data:/data
+            - ./.docker_data/redis/data:/data
         ports:
-        - "6379:6379"
+            - "6379:6379"
         healthcheck:
-            test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+            test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
             interval: 3s    # Check every x seconds
-            timeout: 2s     # Timeout if it takes longer than x  seconds
-            retries: 5      # Mark unhealthy after 3 consecutive failures
+            timeout: 2s     # Timeout if it takes longer than x seconds
+            retries: 5      # Mark unhealthy after 5 consecutive failures
+
+volumes:
+    mysql_data:
+    redis_data:
+    phpmyadmin_sessions:

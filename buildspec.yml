@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   variables:
-    AWS_REGION: AWS_REGION
-    AWS_ACCOUNT_ID: AWS_ACCOUNT_ID
+    AWS_REGION: YOUR_AWS_REGION
+    AWS_ACCOUNT_ID: YOUR_AWS_ACCOUNT_ID
     REPO_NAME: php-laravel
 
 phases:
@@ -14,11 +14,13 @@ phases:
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
       - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_BASE_URL
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BASE_URL
+
   build:
     commands:
       - echo Building the Docker image...
       - docker build --target php_production -t ${REPOSITORY_URI_PHP} -t ${REPOSITORY_URI_PHP}:latest -t ${REPOSITORY_URI_PHP}:$IMAGE_TAG .
+
   post_build:
     commands:
       - echo Build completed on `date`
@@ -26,5 +28,7 @@ phases:
       - docker push ${REPOSITORY_URI_PHP}:latest
       - echo Writing image definitions file...
       - printf '[{"name":"php-laravel","imageUri":"%s"}]' $REPOSITORY_URI_PHP:latest > imagedefinitions.json
+
 artifacts:
-  files: imagedefinitions.json
+  files:
+    - imagedefinitions.json

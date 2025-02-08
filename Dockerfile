@@ -34,8 +34,6 @@ RUN pecl install pcov && docker-php-ext-enable pcov
 RUN apt-get install -y nginx
 RUN apt-get install -y supervisor
 
-RUN apt-get install -y telnet
-
 # Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
