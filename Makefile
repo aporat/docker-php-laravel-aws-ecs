@@ -2,13 +2,17 @@
 	cache cache-clear migrate migrate migrate-fresh tests
 
 CONTAINER_PHP=php
+AWS_REGION=YOUR_AWS_REGION
+AWS_ACCOUNT_ID=YOUR_AWS_ACCOUNT_ID
+ECR_BASE_URL=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
 help: ## Print help.
 	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
 ps: ## Show containers.
 	@docker compose ps
 build: ## Build all containers
-	@docker compose build  #--no-cache
+	aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_BASE_URL}
+	@docker compose build
 start: ## Start all containers
 	@docker compose up --force-recreate -d
 fresh: stop build start  ## Destroy & recreate all uing dev containers.
