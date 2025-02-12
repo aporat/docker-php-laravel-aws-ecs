@@ -1,33 +1,43 @@
 version: 0.2
 
 env:
-  variables:
-    AWS_REGION: YOUR_AWS_REGION
-    AWS_ACCOUNT_ID: YOUR_AWS_ACCOUNT_ID
-    REPO_NAME: php-laravel
+  secrets-manager:
+    AWS_REGION: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_REGION"
+    AWS_ACCOUNT_ID: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_ACCOUNT_ID"
+    REPO_NAME: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_ECR_PHP_REPO_NAME"
 
 phases:
   pre_build:
     commands:
-      - ECR_BASE_URL=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
-      - REPOSITORY_URI_PHP=${ECR_BASE_URL}/${REPO_NAME}
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=${COMMIT_HASH:=latest}
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_BASE_URL
+      - echo "===== Setting Environment Variables ====="
+      - ECR_BASE_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+      - REPOSITORY_URI_PHP="${ECR_BASE_URL}/${REPO_NAME}"
+      - COMMIT_HASH="$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c 1-7)"
+      - IMAGE_TAG="${COMMIT_HASH:=latest}"
+
+      - echo "AWS_REGION        = $AWS_REGION"
+      - echo "AWS_ACCOUNT_ID    = $AWS_ACCOUNT_ID"
+      - echo "REPO_NAME         = $REPO_NAME"
+      - echo "IMAGE_TAG         = $IMAGE_TAG"
+      - echo "ECR_BASE_URL      = $ECR_BASE_URL"
+      - echo "REPOSITORY_URI_PHP= $REPOSITORY_URI_PHP"
+
+      - echo "===== Logging in to Amazon ECR ====="
+      - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_BASE_URL"
 
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build --target php_production -t ${REPOSITORY_URI_PHP} -t ${REPOSITORY_URI_PHP}:latest -t ${REPOSITORY_URI_PHP}:$IMAGE_TAG .
+      - echo "===== Building the Docker Image ====="
+      - docker build --target php_production -t "$REPOSITORY_URI_PHP" -t "$REPOSITORY_URI_PHP:latest" -t "$REPOSITORY_URI_PHP:$IMAGE_TAG" .
 
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
-      - docker push ${REPOSITORY_URI_PHP}:latest
-      - echo Writing image definitions file...
-      - printf '[{"name":"php-laravel","imageUri":"%s"}]' $REPOSITORY_URI_PHP:latest > imagedefinitions.json
+      - echo "===== Build completed on $(date) ====="
+      - echo "===== Pushing the Docker Image ====="
+      - docker push "$REPOSITORY_URI_PHP:latest"
+
+      - echo "===== Writing image definitions file ====="
+      - printf '[{"name":"php-laravel","imageUri":"%s"}]' "$REPOSITORY_URI_PHP:latest" > imagedefinitions.json
 
 artifacts:
   files:
