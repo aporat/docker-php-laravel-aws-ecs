@@ -2,9 +2,9 @@ version: 0.2
 
 env:
   secrets-manager:
-    AWS_REGION: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_REGION"
-    AWS_ACCOUNT_ID: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_ACCOUNT_ID"
-    REPO_NAME: "arn:aws:secretsmanager:us-east-2:728035916027:secret:api-app-WaJ2kT:AWS_ECR_PHP_REPO_NAME"
+    AWS_REGION: "arn:aws:secretsmanager:AWS_REGION:AWS_ACCOUNT_ID:secret:php-app-WaJ2kT:AWS_REGION"
+    AWS_ACCOUNT_ID: "arn:aws:secretsmanager:AWS_REGION:AWS_ACCOUNT_ID:secret:php-app-WaJ2kT:AWS_ACCOUNT_ID"
+    REPO_NAME: "arn:aws:secretsmanager:AWS_REGION:AWS_ACCOUNT_ID:secret:php-app-WaJ2kT:AWS_ECR_PHP_REPO_NAME"
 
 phases:
   pre_build:
