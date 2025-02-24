@@ -33,7 +33,7 @@ login-ecr: ## Log in to ECR using AWS CLI & stored secrets
 	@echo "Logging in to ECR at $(ECR_BASE_URL)"
 	@aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_BASE_URL)
 
-build: login-ecr ## Build all containers
+build: ## Build all containers
 	@docker compose build
 	# Uncomment if you want a fresh build with no cache:
 	# @docker compose build --no-cache

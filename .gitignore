@@ -1,8 +1,21 @@
+# IDE and OS files
 /.idea
+.DS_Store
+
+# Build and temporary files
 /build
+.docker_data
+
+# Dependencies
 /vendor
 composer.phar
-composer.lock
-.DS_Store
+
+# Testing
+.phpunit.result.cache
 .phpunit*
-.docker_data
+
+# Laravel-specific (recommended additions)
+/.env
+/laravel/storage/*.key
+/laravel/storage/logs/*.log
+/laravel/public/storage
