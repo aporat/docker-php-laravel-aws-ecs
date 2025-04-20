@@ -78,8 +78,7 @@ Ensure a VPC exists with **only public subnets**. Create one in the **VPC Consol
 
 1. Go to **ECR > Create Repository**
 2. Name it: `laravel-app`
-3. Make it private
-4. Save the repository URI
+3. Save the repository URI
 
 ---
 
@@ -89,23 +88,25 @@ Ensure a VPC exists with **only public subnets**. Create one in the **VPC Consol
 2. Select **Amazon EC2 instances**
 3. Name: `laravel-cluster`
 4. **AMI**: Amazon Linux 2 (arm64)
-5. Select an **SSH Key Pair**
-6. Select your **VPC** and **only public subnets**
-7. Click **Create**
+5. **EC2 instance type**: t4f.large
+6. Select an **SSH Key Pair**
+7. Select your **VPC** and **only public subnets**
+8. Click **Create**
 
 ---
 
 ### 7. Create a Task Definition
 
 1. Go to **Task Definitions > Create**
-2. Type: **EC2**
-3. Name: `laravel-task`
-4. Architecture: **Linux/ARM64**
+2. Name: `laravel-task`
+3. Infrastructure requirements: **Amazon EC2 instances**
+4. Operating system/Architecture: **Linux/ARM64**
+4. Network mode: **bridge**
 5. CPU: **1 vCPU**, Memory: **2 GB**
 
 **Add container:**
 - Name: `laravel-app`
-- Image: your ECR URI
+- Image: your ECR URI:lastest, for example: 7390159161217.dkr.ecr.us-east-1.amazonaws.com/laravel-app:latest 
 - Port: 80
 
 Click **Create**
@@ -118,17 +119,8 @@ Click **Create**
 2. Go to **Services > Create**
 
 **Settings:**
-- Task definition: `laravel-task`, revision `1`
+- Task definition family: `laravel-task`, revision `1`
 - Service name: `laravel-service`
-
-**Networking:**
-- VPC: your VPC
-- Subnets: only **public**
-- Security group: allow inbound on **port 80**
-
-**Optional Load Balancer:**
-- Enable if needed
-- Map to port 80,443
 
 Click **Create Service**
 
@@ -137,9 +129,8 @@ Click **Create Service**
 ### 9. Set Up CI/CD with AWS CodePipeline
 
 1. Go to **CodePipeline > Create pipeline**
-2. **Pipeline name**: `laravel-image-build`
-3. **Category**: Deployment  
-   **Template**: Build a custom pipeline
+2. **Category**: Build a custom pipeline
+3. **Pipeline name**: `laravel-image-build`
 
 **Source stage:**
 - Provider: GitHub
@@ -152,7 +143,6 @@ Click **Create Service**
 **In the modal:**
 - Name: `laravel-app-image-build-project`
 - Operating System: Amazon Linux
-- Runtime: Ubuntu
 - Image: aws/codebuild/amazonlinux2-aarch64-standard:3.0
 - Buildspec: Use a buildspec file
 - Click **Continue to CodePipeline**
@@ -163,6 +153,7 @@ Click **Create Service**
 - Provider: Amazon ECS
 - Cluster: `laravel-cluster`
 - Service: `laravel-service`
+- Image definitions file - **imagedefinitions.json**
 
 Click **Create pipeline**
 
@@ -171,7 +162,7 @@ Click **Create pipeline**
 ### 10. Configure IAM Permissions for CodeBuild
 
 1. Go to **IAM > Roles**
-2. Find: `codebuild-laravel-image-build-project-service-role`
+2. Find: `laravel-app-image-build-project-service-role`
 3. Click **Add permissions > Attach policies**
 4. Attach these managed policies:
     - `AmazonEC2ContainerRegistryFullAccess`

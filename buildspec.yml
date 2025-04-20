@@ -14,7 +14,7 @@ phases:
       - ECR_BASE_URL="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
       - ECR_REPO_URI="${ECR_BASE_URL}/${ECR_REPO_NAME}"
       - ECR_COMMIT_HASH="$(echo "$CODEBUILD_RESOLVED_SOURCE_VERSION" | cut -c 1-7)"
-      - ECR_IMAGE_TAG="${ECR_COMMIT_HASH:=latest}"
+      - ECR_IMAGE_TAG="${ECR_COMMIT_HASH:-latest}"
 
       - echo "AWS_REGION        = $AWS_REGION"
       - echo "AWS_ACCOUNT_ID    = $AWS_ACCOUNT_ID"
@@ -29,12 +29,13 @@ phases:
   build:
     commands:
       - echo "===== Building the Docker Image ====="
-      - docker build --target php_production -t "$ECR_REPO_URI" -t "$ECR_REPO_URI:latest" -t "$ECR_REPO_URI:$ECR_BASE_URL" .
+      - docker build --target php_production -t "${ECR_REPO_URI}:latest" -t "${ECR_REPO_URI}:${ECR_IMAGE_TAG}" .
 
   post_build:
     commands:
       - echo "===== Pushing the Docker Image ====="
-      - docker push "$ECR_REPO_URI:latest"
+      - docker push "${ECR_REPO_URI}:latest"
+      - docker push "${ECR_REPO_URI}:${ECR_IMAGE_TAG}"
 
       - echo "===== Writing image definitions file ====="
       - printf '[{"name":"%s","imageUri":"%s"}]' "$ECS_CONTAINER_NAME" "${ECR_REPO_URI}:${ECR_IMAGE_TAG}" > imagedefinitions.json
