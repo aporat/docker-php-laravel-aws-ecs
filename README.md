@@ -17,7 +17,7 @@ This project demonstrates how to deploy a **Laravel 12** application to AWS ECS 
 - Docker & Docker Compose
 - PHP 8.4+ with Composer
 - AWS CLI
-- AWS Account (with ECS, ECR, Secrets Manager, CodeBuild permissions)
+- AWS Account
 
 ### Getting Started
 
@@ -35,13 +35,12 @@ make start            # Starts containers
 
 ---
 
-## ECS Deployment Guide (EC2 Launch)
+## ECS Deployment Guide
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-org/your-laravel-repo.git
-cd your-laravel-repo
 ```
 
 ---
@@ -71,14 +70,14 @@ Ensure a VPC exists with **only public subnets**. Create one in the **VPC Consol
      "AWS_ACCOUNT_ID": "your-account-id"
    }
    ```
-4. Name the secret: **php-app**
+4. Name the secret: **laravel-app**
 
 ---
 
 ### 5. Create an ECR Repository
 
 1. Go to **ECR > Create Repository**
-2. Name it: `php-app`
+2. Name it: `laravel-app`
 3. Make it private
 4. Save the repository URI
 
@@ -105,7 +104,7 @@ Ensure a VPC exists with **only public subnets**. Create one in the **VPC Consol
 5. CPU: **1 vCPU**, Memory: **2 GB**
 
 **Add container:**
-- Name: `php-laravel`
+- Name: `laravel-app`
 - Image: your ECR URI
 - Port: 80
 
@@ -121,7 +120,6 @@ Click **Create**
 **Settings:**
 - Task definition: `laravel-task`, revision `1`
 - Service name: `laravel-service`
-- Tasks: 1
 
 **Networking:**
 - VPC: your VPC
@@ -130,7 +128,7 @@ Click **Create**
 
 **Optional Load Balancer:**
 - Enable if needed
-- Map to port 80
+- Map to port 80,443
 
 Click **Create Service**
 
@@ -152,8 +150,10 @@ Click **Create Service**
 - Click **Create build project**
 
 **In the modal:**
-- Name: `laravel-image-build-project`
-- Runtime: Ubuntu Standard (latest)
+- Name: `laravel-app-image-build-project`
+- Operating System: Amazon Linux
+- Runtime: Ubuntu
+- Image: aws/codebuild/amazonlinux2-aarch64-standard:3.0
 - Buildspec: Use a buildspec file
 - Click **Continue to CodePipeline**
 
@@ -183,4 +183,4 @@ Click **Add permissions**
 
 ## ✅ Done!
 
-Your Laravel 12 app is now fully Dockerized, deployed to ECS, and automatically built + shipped with every Git push via CodePipeline.
+Your Laravel app is now fully Dockerized, deployed to ECS, and automatically built + shipped with every Git push via CodePipeline.
