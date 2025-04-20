@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
 
@@ -18,10 +18,21 @@ jobs:
 
         - uses: shivammathur/setup-php@v2
           with:
-           php-version: '8.4'
+            extensions: mbstring, json, openssl
+            ini-values: memory_limit=-1
+            tools: composer:v2
+            php-version: '8.4'
+
+        - name: Install Laravel installer
+          run: composer global require laravel/installer
 
         - name: Install Laravel project
           run: composer create-project --prefer-dist laravel/laravel laravel
+
+        - name: Install Dependencies
+          uses: ramsey/composer-install@v3
+          with:
+            working-directory: laravel
 
         - name: Setup the Laravel environment
           run: cp .env laravel/.env
