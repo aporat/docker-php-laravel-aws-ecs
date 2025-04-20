@@ -33,6 +33,13 @@ login-ecr: ## Log in to ECR using AWS CLI & stored secrets
 	@echo "Logging in to ECR at $(ECR_BASE_URL)"
 	@aws ecr get-login-password --region $(AWS_REGION) | docker login --username AWS --password-stdin $(ECR_BASE_URL)
 
+create-project: ## Create a new Laravel project in the app directory
+	@mkdir -p laravel
+	@composer global require "laravel/installer"
+	@composer create-project --quiet --prefer-dist laravel/laravel laravel
+	@composer install --prefer-dist --no-interaction --no-progress --no-suggest --working-dir=laravel
+	@cp .env laravel/.env
+
 build: ## Build all containers
 	@docker compose build
 	# Uncomment if you want a fresh build with no cache:
