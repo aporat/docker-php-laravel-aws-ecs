@@ -36,7 +36,7 @@ services:
             MYSQL_USER: laravel
             MYSQL_PASSWORD: docdiq-wAxja5-nyrger
         healthcheck:
-            test: ["CMD-SHELL", "mysqladmin ping -h localhost -u laravel -ppassword || exit 1"]
+            test: ["CMD-SHELL", "mysqladmin ping -h localhost -u laravel -pdocdiq-wAxja5-nyrger || exit 1"]
             interval: 3s    # Check every x seconds
             timeout: 2s     # Timeout if it takes longer than x seconds
             retries: 5      # Mark unhealthy after 5 consecutive failures

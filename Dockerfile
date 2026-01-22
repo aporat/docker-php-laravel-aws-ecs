@@ -45,13 +45,15 @@ COPY docker/nginx/fastcgi_fpm docker/nginx/gzip_params /etc/nginx/
 
 RUN mkdir -p /var/lib/nginx/tmp /var/log/nginx
 
+# Create PHP session directory
+RUN mkdir -p /tmp/sessions && chmod 1777 /tmp/sessions
+
 # cronjob
 ADD docker/php/laravel-cronjob /etc/cron.d/laravel-cron
 RUN chmod 0644 /etc/cron.d/laravel-cron \
     && crontab -u app-user /etc/cron.d/laravel-cron
 
 RUN chmod gu+rw /var/run
-RUN chmod gu+s /usr/sbin/cron
 
 # setup nginx user permissions
 RUN chown -R app-user:app-group /var/lib/nginx /var/log/nginx

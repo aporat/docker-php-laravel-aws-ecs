@@ -10,7 +10,7 @@
 CONTAINER_PHP := php
 
 # Name of the AWS Secrets Manager secret holding ECR info
-SECRET_ID := php-app
+SECRET_ID := laravel-app
 
 ################################################################################
 # Help Target
@@ -37,7 +37,7 @@ create-project: ## Create a new Laravel project in the app directory
 	@mkdir -p laravel
 	@composer global require "laravel/installer"
 	@composer create-project --quiet --prefer-dist laravel/laravel laravel
-	@composer install --prefer-dist --no-interaction --no-progress --no-suggest --working-dir=laravel
+	@composer install --prefer-dist --no-interaction --no-progress --working-dir=laravel
 	@cp .env laravel/.env
 
 build: ## Build all containers

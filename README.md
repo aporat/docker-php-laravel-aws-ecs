@@ -12,6 +12,19 @@ This project demonstrates how to deploy a **Laravel 12** application to AWS ECS 
 - Redis: 7.x
 - Mailpit: 1.x
 
+### ⚠️ Security Notice
+
+**IMPORTANT:** Before deploying to production:
+
+1. **Rotate all secrets** - The `.env` file in this repository contains example credentials that should NEVER be used in production
+2. **Generate new keys:**
+   - `APP_KEY`: Run `php artisan key:generate`
+   - `DB_PASSWORD`: Generate a strong random password
+   - `MYSQL_ROOT_PASSWORD`: Generate a strong random password
+3. **Use environment variables** - Pass secrets via environment variables or AWS Secrets Manager, not committed files
+4. **Enable auto-migrations conditionally** - Set `AUTO_MIGRATE=true` environment variable only when needed (not recommended for production)
+5. **Review disabled PHP functions** - Adjust `disable_functions` in `php.ini` based on your application needs
+
 ### Prerequisites
 
 - Docker & Docker Compose
