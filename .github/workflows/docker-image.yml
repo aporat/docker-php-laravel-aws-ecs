@@ -30,7 +30,7 @@ jobs:
           run: composer create-project --prefer-dist laravel/laravel laravel
 
         - name: Install Dependencies
-          uses: ramsey/composer-install@v3
+          uses: ramsey/composer-install@v4
           with:
             working-directory: laravel
 
